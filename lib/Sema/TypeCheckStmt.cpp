@@ -1333,6 +1333,15 @@ void TypeChecker::checkIgnoredExpr(Expr *E) {
 
 Stmt *StmtChecker::visitBraceStmt(BraceStmt *BS) {
   const SourceManager &SM = TC.Context.SourceMgr;
+
+  if (TheFunc.hasValue() && BS->getNumElements() > 0) {
+    if (auto stmt = BS->getElement(BS->getNumElements() - 1).dyn_cast<Stmt*>()) {
+      if (auto deferStmt = dyn_cast<DeferStmt>(stmt)) {
+        TC.diagnose(deferStmt->getStartLoc(), diag::end_of_block_defer);
+      }
+    }
+  }
+
   for (auto &elem : BS->getElements()) {
     if (auto *SubExpr = elem.dyn_cast<Expr*>()) {
       SourceLoc Loc = SubExpr->getStartLoc();

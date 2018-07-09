@@ -3,6 +3,11 @@
 /* block comments */
 /* /* nested too */ */
 
+defer {
+  var x = 97
+  x = 55
+}
+
 func markUsed<T>(_ t: T) {}
 
 func f1(_ a: Int, _ y: Int) {}
@@ -343,6 +348,41 @@ func test_defer(_ a : Int) {
   // Not ok.
   while false { defer { break } }   // expected-error {{'break' cannot transfer control out of a defer statement}}
   defer { return }  // expected-error {{'return' cannot transfer control out of a defer statement}}
+}
+
+func test_defer_end_of_block() {
+
+  // Ok:
+  if false {
+    defer { VoidReturn1() }
+    VoidReturn1()
+  }
+
+  while false {
+    defer { VoidReturn1() }
+    VoidReturn1()
+  }
+
+  // Not ok:
+  if false {
+    defer { // expected-warning {{placing defer at the end of a block makes the use of defer irrelevant}}
+      VoidReturn1()
+    }
+  }
+
+  if false {
+    VoidReturn1()
+    defer { // expected-warning {{placing defer at the end of a block makes the use of defer irrelevant}}
+      VoidReturn1()
+    }
+  }
+
+  if false {
+    // Test comment for check for warning of defer
+    defer { VoidReturn1() } // expected-warning {{placing defer at the end of a block makes the use of defer irrelevant}}
+  }
+
+  defer { VoidReturn1() } // expected-warning {{placing defer at the end of a block makes the use of defer irrelevant}}
 }
 
 class SomeTestClass {

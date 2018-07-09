@@ -3002,6 +3002,8 @@ ERROR(capture_across_type_decl,none,
 ERROR(jump_out_of_defer,none,
       "'%0' cannot transfer control out of a defer statement",
       (StringRef))
+WARNING(end_of_block_defer,none,
+      "placing defer at the end of a block makes the use of defer irrelevant", ())
 
 ERROR(return_invalid_outside_func,none,
       "return invalid outside of a func", ())
